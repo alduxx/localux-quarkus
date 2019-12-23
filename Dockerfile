@@ -19,4 +19,5 @@ WORKDIR /work/
 COPY target/*-runner /work/application
 RUN chmod 775 /work
 EXPOSE 8080
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dquarkus.datasource.url=vertx-reactive:mysql://0.0.0.0:3306/localux"]
+# CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dquarkus.log.level=DEBUG", "-Dquarkus.datasource.url=vertx-reactive:mysql://192.168.2.2:3306/localux"]
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]

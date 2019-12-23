@@ -1,5 +1,6 @@
 package br.com.bb.localux.models;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.axle.sqlclient.Row;
 import io.vertx.axle.sqlclient.RowSet;
 import io.vertx.axle.sqlclient.Tuple;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
+@RegisterForReflection
 public class Light {
     public Integer id;
     public String name;
@@ -28,6 +30,7 @@ public class Light {
 
     private static Light from(Row row) {
         return new Light(row.getInteger("id"), row.getString("name"), row.getInteger("status"));
+
     }
 
     public static CompletionStage<List<Light>> findAll(MySQLPool client) {

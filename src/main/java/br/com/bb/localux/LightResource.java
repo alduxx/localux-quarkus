@@ -1,29 +1,30 @@
 package br.com.bb.localux;
 
 import br.com.bb.localux.models.Light;
+import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.configuration.ProfileManager;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.concurrent.CompletionStage;
 
+import java.util.concurrent.CompletionStage;
 
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 @Path("/lights")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class LightResource {
 
     @Inject
     io.vertx.axle.mysqlclient.MySQLPool client;
 
+    /*
     @Inject
     @ConfigProperty(name = "localux-quarkus.schema.create", defaultValue = "true")
     boolean schemaCreate;
@@ -46,31 +47,34 @@ public class LightResource {
                 .toCompletableFuture()
                 .join();
     }
+*/
+
 
     @ConfigProperty(name = "quarkus.datasource.url")
-    String message;
+    String dataSourceURL;
 
-    @GET
-    public CompletionStage<Response> get() {
-        System.out.println("#### Aldux ");
-        System.out.println(message);
+    private static final Logger LOGGER = LoggerFactory.getLogger("ApplicationLifeCycle");
 
-        return Light.findAll(client)
-                .thenApply(Response::ok)
-                .thenApply(Response.ResponseBuilder::build);
+
+    void onStart(@Observes StartupEvent ev) {
+        LOGGER.info("The application is starting with profile " + ProfileManager.getActiveProfile());
+        LOGGER.info("Datasource URL: " + dataSourceURL);
     }
 
-    // 4265872.1 saldo cons
-    // 3963992.1 lista matri
-    // 4.9031
-    // centralizador 2.59
-
-
     @GET
-    @Path("{id}")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/id/{id}")
     public CompletionStage<Response> getSingle(@PathParam Integer id) {
         return Light.findById(client, id)
                 .thenApply(light -> light != null ? Response.ok(light) : Response.status(Response.Status.NOT_FOUND))
+                .thenApply(Response.ResponseBuilder::build);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public CompletionStage<Response> get() {
+        return Light.findAll(client)
+                .thenApply(Response::ok)
                 .thenApply(Response.ResponseBuilder::build);
     }
 
