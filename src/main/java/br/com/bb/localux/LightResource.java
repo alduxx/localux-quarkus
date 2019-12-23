@@ -7,6 +7,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -24,7 +25,6 @@ public class LightResource {
     @Inject
     io.vertx.axle.mysqlclient.MySQLPool client;
 
-    /*
     @Inject
     @ConfigProperty(name = "localux-quarkus.schema.create", defaultValue = "true")
     boolean schemaCreate;
@@ -47,7 +47,6 @@ public class LightResource {
                 .toCompletableFuture()
                 .join();
     }
-*/
 
 
     @ConfigProperty(name = "quarkus.datasource.url")
@@ -62,7 +61,7 @@ public class LightResource {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{id}")
     public CompletionStage<Response> getSingle(@PathParam Integer id) {
         return Light.findById(client, id)
@@ -80,6 +79,7 @@ public class LightResource {
 
 
     @PUT
+    @Produces(MediaType.APPLICATION_JSON)
     public CompletionStage<Response> toggleLightStatus(@QueryParam Integer id) {
         Light.toggleLightStatus(client, id);
         return getSingle(id);
