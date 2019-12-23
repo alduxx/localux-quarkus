@@ -19,6 +19,7 @@ import java.util.concurrent.CompletionStage;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
+
 @Path("/lights")
 public class LightResource {
 
@@ -29,11 +30,10 @@ public class LightResource {
     @ConfigProperty(name = "localux-quarkus.schema.create", defaultValue = "true")
     boolean schemaCreate;
 
-
     @PostConstruct
     void config() {
         if (schemaCreate) {
-            //initdb();
+            initdb();
         }
     }
 
@@ -48,17 +48,6 @@ public class LightResource {
                 .join();
     }
 
-
-    @ConfigProperty(name = "quarkus.datasource.url")
-    String dataSourceURL;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger("ApplicationLifeCycle");
-
-
-    void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("The application is starting with profile " + ProfileManager.getActiveProfile());
-        LOGGER.info("Datasource URL: " + dataSourceURL);
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
