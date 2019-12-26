@@ -1,14 +1,10 @@
 package br.com.bb.localux;
 
 import br.com.bb.localux.models.Light;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.configuration.ProfileManager;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.metrics.Counter;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,6 +12,9 @@ import javax.ws.rs.core.Response;
 
 import java.util.concurrent.CompletionStage;
 
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
@@ -60,6 +59,8 @@ public class LightResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Counted(name="listing", description = "How many times the lights have been listed")
+    @Timed(name = "listTime", description = "A measure of how long it takes to return the list", unit = MetricUnits.MILLISECONDS)
     public CompletionStage<Response> get() {
         return Light.findAll(client)
                 .thenApply(Response::ok)
